@@ -1,0 +1,70 @@
+{
+    "gastos": [
+      {
+        "fecha": "2023-12-01",
+        "categoria": "Alimentos",
+        "descripcion": "Compra de mercado",
+        "monto": "150.000"
+      },
+      {
+        "fecha": "2023-12-02",
+        "categoria": "Transporte",
+        "descripcion": "Pasaje de bus",
+        "monto": "20.000"
+      },
+      {
+        "fecha": "2023-12-03",
+        "categoria": "Educación",
+        "descripcion": "Matrícula escolar",
+        "monto": "250.000"
+      },
+      {
+        "fecha": "2023-12-04",
+        "categoria": "Salud",
+        "descripcion": "Consulta médica",
+        "monto": "50.000"
+      },
+      {
+        "fecha": "2023-12-05",
+        "categoria": "Diversión",
+        "descripcion": "Cine",
+        "monto": "30.000"
+      },
+      {
+        "fecha": "2023-12-06",
+        "categoria": "Compras",
+        "descripcion": "Ropa",
+        "monto": "100.000"
+      },
+      {
+        "fecha": "2023-12-07",
+        "categoria": "Servicios públicos",
+        "descripcion": "Agua, luz, gas",
+        "monto": "120.000"
+      },
+      {
+        "fecha": "2023-12-08",
+        "categoria": "Electrodomésticos",
+        "descripcion": "Compra de nevera",
+        "monto": "500.000"
+      },
+      {
+        "fecha": "2023-12-09",
+        "categoria": "Viajes",
+        "descripcion": "Boletos de avión",
+        "monto": "2.000.000"
+      },
+      {
+        "fecha": "2023-12-19",
+        "categoria": "Viajes",
+        "descripcion": "Boletos de avión",
+        "monto": "2.000.000"
+      },
+      {
+        "fecha": "2023-12-10",
+        "categoria": "Regalos",
+        "descripcion": "Navidad",
+        "monto": "1.500.000"
+      }
+    ]
+  }

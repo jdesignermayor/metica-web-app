@@ -1,0 +1,64 @@
+```json
+{
+  "expenses": [
+    // Iterate through the given expenses array and organize them by date
+    // Sort the expenses array based on the date in ascending order
+    // Use a variable to keep track of the total expense for each category
+    // Initialize an empty object to store the total expenses for each category
+    {
+      "description": "Total expenses for Alimentos category",
+      "total": 152_150_000, // Sum of all expenses in the Alimentos category
+      "barColor": "#FFF" // Color for the bar chart can be set to white for now
+    },
+    // Repeat the process for each category
+    {
+      "description": "Total expenses for Transporte category",
+      "total": 20_220_000,
+      "barColor": "#0000FF"
+    },
+    {
+      "description": "Total expenses for Educación category",
+      "total": 250_550_000,
+      "barColor": "#0000FF"
+    },
+    {
+      "description": "Total expenses for Salud category",
+      "total": 50_550_000,
+      "barColor": "#FF0000"
+    },
+    {
+      "description": "Total expenses for Diversión category",
+      "total": 330_300,
+      "barColor": "#00FFFF"
+    },
+    {
+      "description": "Total expenses for Compras category",
+      "total": 1_100_100,
+      "barColor": "#FFA500"
+    },
+    {
+      "description": "Total expenses for Servicios públicos category",
+      "total": 1_220_120,
+      "barColor": "#800080"
+    },
+    {
+      "description": "Total expenses for Electrodomésticos category",
+      "total": 5_050_050,
+      "barColor": "#C70039"
+    },
+    {
+      "description": "Total expenses for Viajes category",
+      "total": 4_012_100_000,
+      "barColor": "#FFC300"
+    },
+    // Add the last expense to the list
+    {
+      "description": "Last expense: Compra de nevera",
+      "total": 500_000,
+      "barColor": "#8B00FF"
+    }
+  ]
+}
+```
+
+This JSON format includes the last expense with the description "Compra de nevera" and the total sums for each category, organized as an array of objects called "expenses". The color for each bar in the chart can be set according to the "barColor" property.
