@@ -2,18 +2,17 @@
 import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function ChartResult({ data }: any) {
-    console.log('coming data:', data)
 
     return <div >
-        <BarChart width={'100%'} height={430} data={data}>
+        <BarChart width={100} height={430} data={data}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="category" />
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="total" >
+            {/* <Bar dataKey="total" >
                 {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.barColor} />)}
-            </Bar>
+            </Bar> */}
         </BarChart>
     </div>
 }
