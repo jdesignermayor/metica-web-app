@@ -19,13 +19,13 @@ export default async function Navbar({ userData = null }: any) {
             </li>) : (<li>
                 <SignOutNotion />
             </li>)}
-            <li>
+            {/* <li>
                 <Link href={'https://twitter.com/tafidi_di'} >
                     <Button variant='ghost'>
-                        Keep stunned on <IconTwitter className=" px-2" />
+                    <IconTwitter >
                     </Button>
                 </Link>
-            </li>
+            </li> */}
         </ul>
     </header>
 }
