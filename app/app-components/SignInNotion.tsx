@@ -9,9 +9,6 @@ export default function SignInNotion({ variant = "outline" }: { variant: Variant
     const signUp = async () => {
         await supabase.auth.signInWithOAuth({
             provider: 'notion',
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback/`
-            }
         })
     }
     return <Button variant={variant} onClick={signUp}>
