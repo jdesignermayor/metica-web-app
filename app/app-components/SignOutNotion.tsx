@@ -1,19 +1,30 @@
 'use client';
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { Card, CardDescription } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import supabase from "@/lib/supabase/client";
+import { AvatarFallback } from "@radix-ui/react-avatar";
 
 import { useRouter } from "next/navigation";
 
-export default function SignOutNotion() {
-    const supabase = createClientComponentClient();
-    const router = useRouter()
+type UserMetadata = {
+    avatar_url: string;
+    email: string;
+    name: string;
+    picture: string;
+}
 
+export default function SignOutNotion() {
+    const router = useRouter();
     const handleLogout = async () => {
         await supabase.auth.signOut();
         router.refresh();
     }
 
-    return <Button variant="outline" onClick={handleLogout}>
-        Sign out from Notion
-    </Button>
+    return <nav className="flex items-center gap-5">
+        <Button variant="outline" onClick={handleLogout}>
+            Sign out from Notion
+        </Button>
+    </nav>
 }

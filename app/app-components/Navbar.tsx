@@ -1,31 +1,21 @@
-"use server";
+"use client";
+
 import { Button } from "@/components/ui/button";
 import IconLogo from "@icons/IconLogo";
-import IconTwitter from "@icons/IconTwitter";
-import IconNotion from "@icons/IconNotion";
-import Link from "next/link";
 import SignOutNotion from "./SignOutNotion";
+import SignInNotion from "./SignInNotion";
 
-export default async function Navbar({ userData = null }: any) {
+export default function Navbar({ userData = null }: any) {
     return <header className="flex justify-between px-4 2xl:px-[20%] py-5 items-center">
         <div>
             <IconLogo />
         </div>
         <ul className="flex gap-3">
-            {!userData ? (<li>
-                <Button variant='outline'>
-                    Connect to Notion <IconNotion className=" px-2" />
-                </Button>
+            {!userData?.provider_token ? (<li>
+                <SignInNotion variant={'outline'} />
             </li>) : (<li>
                 <SignOutNotion />
             </li>)}
-            {/* <li>
-                <Link href={'https://twitter.com/tafidi_di'} >
-                    <Button variant='ghost'>
-                    <IconTwitter >
-                    </Button>
-                </Link>
-            </li> */}
         </ul>
     </header>
 }
