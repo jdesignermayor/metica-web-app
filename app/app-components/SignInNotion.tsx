@@ -10,7 +10,7 @@ export default function SignInNotion({ variant = "outline" }: { variant: Variant
         await supabase.auth.signInWithOAuth({
             provider: 'notion',
             options: {
-                redirectTo: `${location.origin}/auth/callback/`
+                redirectTo: `${window.location.origin}/auth/callback/`
             }
         })
     }
