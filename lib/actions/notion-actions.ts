@@ -2,8 +2,32 @@
 
 import createSupabaseClient from "../supabase/server";
 
-type NotionActionsType = {
-    token: string,
+type NotionDatabaseReponseType = {
+    id: string;
+    object: string;
+    created_time: string;
+    last_edited_time: string;
+    created_by: {
+        object: string;
+        id: string;
+    },
+    last_edited_by: {
+        object: string;
+        id: string;
+    },
+    cover: null;
+    icon: {
+        type: string;
+        emoji: string;
+    },
+    parent: {
+        type: string;
+        database_id: string;
+    }
+    archived: false;
+    properties: null;
+    url: string;
+    public_url: null;
 }
 
 export type NotionDatabasesType = {
@@ -11,27 +35,35 @@ export type NotionDatabasesType = {
     title: string;
 }
 
+export type NotionDatabasePropertiesType = {
+    id: string;
+    created_time: string;
+    properties: string | null;
+}
+
 const NOTION_VERSION = '2022-06-28'
 
-const getToken = async () => {
+const getHeaders = async () => {
     const supabase = await createSupabaseClient();
     const session = await supabase.auth.getSession();
     const token = session.data?.session?.provider_token;
-    return token;
-}
 
-export async function getDatabasesInfo(): Promise<Array<NotionDatabasesType | []>> {
-    const token = await getToken();
     const DEFAULT_HEADERS = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
         'Notion-Version': NOTION_VERSION,
     };
 
+    return DEFAULT_HEADERS;
+}
+
+export async function getDatabases(): Promise<Array<NotionDatabasesType | []>> {
+    const headers = await getHeaders();
+
     try {
         const req = await fetch(`${process.env.NEXT_PUBLIC_NOTION_API_URL}/search`, {
             method: 'POST',
-            headers: DEFAULT_HEADERS,
+            headers,
             body: JSON.stringify(
                 {
                     "filter": {
@@ -61,24 +93,29 @@ export async function getDatabasesInfo(): Promise<Array<NotionDatabasesType | []
     }
 }
 
-export async function getDatabaseData({ databaseID }: { databaseID: string }) {
-    const token = await getToken();
-    const DEFAULT_HEADERS = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        'Notion-Version': NOTION_VERSION,
-    };
+export async function getDatabaseDataById({ databaseId }: { databaseId: string }): Promise<Array<NotionDatabasePropertiesType>> {
+    const headers = await getHeaders();
 
     try {
-        const req = await fetch(`${process.env.NEXT_PUBLIC_NOTION_API_URL}/databases/${databaseID}/query`, {
+        const req = await fetch(`${process.env.NEXT_PUBLIC_NOTION_API_URL}/databases/${databaseId}/query`, {
+            headers,
             method: 'POST',
-            headers: DEFAULT_HEADERS,
         })
 
         const { results } = await req.json();
 
         if (results.length > 0) {
-            return results;
+            const databaseInfo = results as Array<NotionDatabaseReponseType>;
+
+            const computedDabaseInfo: Array<NotionDatabasePropertiesType> = databaseInfo.map((item: NotionDatabaseReponseType) => {
+                return {
+                    id: item.id,
+                    created_time: item.created_time,
+                    properties: item.properties
+                }
+            })
+
+            return computedDabaseInfo;
         } else {
             return [];
         }

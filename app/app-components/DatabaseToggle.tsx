@@ -3,16 +3,20 @@
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { NotionDatabasesType } from "@/lib/actions/notion-actions"
-import { getDatabaseData } from "@actions/notion-actions";
-import { useAuthStore } from "@store/store";
+import { getDatabaseDataById } from "@actions/notion-actions";
+import { getSuggestions } from "@actions/mistral-actions";
 
 export function DatabaseToggle({ databases }: any) {
-    const { setDatabaseData, setIsLoading } = useAuthStore((state: any) => state);
-
     const handleChange = async (value: string) => {
-        await setIsLoading();
-        const databaseIdData = await getDatabaseData({  databaseID: value });
-        setDatabaseData({ databaseData: databaseIdData })
+        // await setIsLoading();
+        const databaseIdData = await getDatabaseDataById({ databaseId: value });
+        console.log('databaseIdData:', JSON.stringify(databaseIdData))
+        // const mistralSuggestions = await getSuggestions({ databaseInfo: databaseIdData });
+        // if (mistralSuggestions && mistralSuggestions.length > 0) {
+        //     console.log('mistralSuggestions:', mistralSuggestions)
+        //     console.log('mistralSuggestions:', typeof(mistralSuggestions))
+        //     setSuggestionsData({ suggestionsData: mistralSuggestions })
+        // }
     }
 
     return (

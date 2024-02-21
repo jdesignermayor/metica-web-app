@@ -14,7 +14,7 @@ export default function SignInNotion({ variant = "outline" }: { variant: Variant
             }
         })
     }
-    return <Button variant={variant} onClick={signUp}>
-        Connect to Notion <IconNotion className=" px-2" />
+    return <Button variant={variant} onClick={signUp} className="max-w-48 rounded-full">
+        Connect to Notion <IconNotion className="px-2" />
     </Button>
 }
