@@ -1,11 +1,28 @@
 import type { Metadata } from "next"
 import { cn } from "@/lib/utils"
 import "./globals.css"
-import { Inter as FontSans } from "next/font/google"
+import localFont from "next/font/local"
 
-const fontSans = FontSans({
-  subsets: ["latin"],
-  variable: '--font-inter',
+const fontLocal = localFont({
+  style: 'syne',
+  variable: '--font-syne',
+  src: [
+    {
+      path: '../public/font/Syne-Regular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../public/font/Syne-Medium.woff2',
+      weight: '500',
+      style: 'italic',
+    },
+    {
+      path: '../public/font/Syne-Bold.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
 })
 
 export const metadata: Metadata = {
@@ -24,7 +41,7 @@ export default function RootLayout({
       <body
         className={cn(
           "dark min-h-screen bg-background font-sans antialiased text-white",
-          fontSans.variable
+          fontLocal.variable
         )}
       >
         {children}

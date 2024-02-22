@@ -2,21 +2,16 @@
 "use client";
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { NotionDatabasesType } from "@/lib/actions/notion-actions"
-import { getDatabaseDataById } from "@actions/notion-actions";
-import { getSuggestions } from "@actions/mistral-actions";
+import { NotionDatabasesType } from "@actions/notion-actions"
+import { useAppStore } from "../store/store";
 
 export function DatabaseToggle({ databases }: any) {
-    const handleChange = async (value: string) => {
-        // await setIsLoading();
-        const databaseIdData = await getDatabaseDataById({ databaseId: value });
-        console.log('databaseIdData:', JSON.stringify(databaseIdData))
-        // const mistralSuggestions = await getSuggestions({ databaseInfo: databaseIdData });
-        // if (mistralSuggestions && mistralSuggestions.length > 0) {
-        //     console.log('mistralSuggestions:', mistralSuggestions)
-        //     console.log('mistralSuggestions:', typeof(mistralSuggestions))
-        //     setSuggestionsData({ suggestionsData: mistralSuggestions })
-        // }
+    const { getSuggestions } = useAppStore();
+
+    const handleChange = async (databaseId: string) => {
+        if (databaseId) {
+            getSuggestions({ databaseId })
+        }
     }
 
     return (
@@ -25,7 +20,7 @@ export function DatabaseToggle({ databases }: any) {
                 databases?.length > 0 &&
                 <RadioGroup defaultValue="0" onValueChange={handleChange}>
                     <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={"0"} id={`id-`} />
+                        <RadioGroupItem value="" id={`id-`} />
                         <Label htmlFor={`id-`}>No one</Label>
                     </div>
                     {

@@ -1,42 +1,61 @@
-import { MistralSuggestionsType } from "@actions/mistral-actions";
+import { NotionDatabasePropertiesType, getDatabaseDataById, getDatabases } from "@actions/notion-actions";
+import { MistralSuggestionsType, getAISuggestions } from "@actions/mistral-actions";
 import { create } from "zustand";
-import { devtools, persist } from "zustand/middleware";
+import zukeeper from "zukeeper";
 
 type InitialStateType = {
     databases: any;
     databaseByIdInfo: null;
-    suggestions: null;
-    userInfo: any;
+    suggestions: [];
     isLoading: boolean;
+    flags: {
+        isDatabasesLoading: boolean;
+        isSuggestionsLoading: boolean;
+    },
 };
 
 const InitialState: InitialStateType = {
     databases: null,
     databaseByIdInfo: null,
-    suggestions: null,
-    userInfo: null,
+    suggestions: [],
     isLoading: false,
+    flags: {
+        isDatabasesLoading: false,
+        isSuggestionsLoading: false,
+    },
 }
 
 type StoreType = {
     databases: any;
     databaseByIdInfo: null;
-    suggestions: Array<MistralSuggestionsType> | null;
+    suggestions: Array<MistralSuggestionsType> | [];
     userInfo: null;
     isLoading: boolean;
-    setDatabases?: (databases: any) => void;
-    setDatabaseByIdInfo?: (databaseByIdInfo: any) => void;
-    setSuggestions?: (suggestions: Array<MistralSuggestionsType>) => void;
-    setUserInfo?: (userInfo: any) => void;
-    setIsLoading?: () => void;
-    clearSessionStore?: () => void;
+    flags: {
+        isDatabasesLoading: boolean;
+        isSuggestionsLoading: boolean;
+    },
+    getDatabases: () => void;
+    getSuggestions: ({ databaseId }: { databaseId: string }) => void;
+    setUserInfo: (userInfo: any) => void;
+    setIsLoading: () => void;
+    clearSessionStore: () => void;
 };
 
-const useAppStore = create<StoreType>()(devtools((set) => ({
+const useAppStore = create<StoreType>()(zukeeper((set: any) => ({
     ...InitialState,
-    setDatabases: ({ databases, userInfo }: any) => set({ databases, userInfo, isLoading: false }),
-    setDatabaseByIdInfo: ({ databaseByIdInfo }: any) => set({ databaseByIdInfo, isLoading: false }),
-    setSuggestions: ({ suggestions }: any) => set({ suggestions, isLoading: false }),
+    getDatabases: async () => {
+        set({ isLoading: true, flags: { isDatabasesLoading: true } });
+        const databasesData = await getDatabases();
+        return set({ databases: databasesData, isLoading: false, flags: { isDatabasesLoading: false } })
+    },
+    getSuggestions: async ({ databaseId }: { databaseId: string }) => {
+        set({ isLoading: true, flags: { isSuggestionsLoading: true } });
+        const databaseIdData = await getDatabaseDataById({ databaseId });
+        const mistralSuggestions = await getAISuggestions({ databaseInfo: databaseIdData as NotionDatabasePropertiesType[] });
+        console.log('mistralSuggestions:', mistralSuggestions)
+        return set({ suggestions: mistralSuggestions, isLoading: false, flags: { isSuggestionsLoading: false } })
+    },
     setIsLoading: () => set({ isLoading: true }),
     clearSessionStore: () => set(InitialState),
 })));

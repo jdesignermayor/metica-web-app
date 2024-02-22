@@ -1,10 +1,13 @@
 "use client";
-import Spline from '@splinetool/react-spline';
+import React, { Suspense } from 'react';
+const Spline = React.lazy(() => import('@splinetool/react-spline'));
 
 export default function AnimationHome() {
     return (
-        <div className="w-96 h-96">
-            <Spline scene="https://prod.spline.design/KJtpgRb0ek8BGNtn/scene.splinecode" />
+        <div className="w-64 h-64 lg:w-80 lg:h-80">
+            <Suspense>
+                <Spline scene="https://prod.spline.design/rZgdSbCGRUSrxQo3/scene.splinecode" />
+            </Suspense>
         </div>
     );
 }
