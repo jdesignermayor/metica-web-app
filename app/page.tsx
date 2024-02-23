@@ -9,7 +9,6 @@ import { readUserSession } from "@actions/auth-actions";
 
 export default async function Home() {
   const { data } = await readUserSession();
-  console.log('user data:', data)
 
   return (
     <>
@@ -20,7 +19,7 @@ export default async function Home() {
             <AnimationHome />
             <NewBadge bigMessage="Now we are available to create multiple Graphs using AI" shortMessage="Multiple Graphs available" />
             <h1 className=" font-bold text-4xl md:text-6xl lg:text-6xl font-syne">Bring your visuals  <br /><span> to the next level</span></h1>
-            <p className=" text-gray-400 text-xl max-w-80 lg:max-w-[70%] font-normal">Power up your data viz with AI. Click 'Sign In' and see the future.</p>
+            <p className=" text-gray-400 text-xl max-w-80 lg:max-w-[70%] font-normal">Power up your data viz with AI. Click Sign In and see the future.</p>
             <div className="flex gap-4">
               {!data.session?.provider_token && <><SignInNotion variant={"default"} />
                 <Button variant={'outline'} className="max-w-48 rounded-full">

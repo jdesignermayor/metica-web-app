@@ -51,7 +51,7 @@ const useAppStore = create<StoreType>()(zukeeper((set: any) => ({
     },
     getSuggestions: async ({ databaseId }: { databaseId: string }) => {
         set({ isLoading: true, flags: { isSuggestionsLoading: true } });
-        const databaseIdData = await getDatabaseDataById({ databaseId });
+        const databaseIdData = await getDatabaseDataById({ databaseId, onlyNullProps: true });
         const mistralSuggestions = await getAISuggestions({ databaseInfo: databaseIdData as NotionDatabasePropertiesType[] });
         console.log('mistralSuggestions:', mistralSuggestions)
         return set({ suggestions: mistralSuggestions, isLoading: false, flags: { isSuggestionsLoading: false } })

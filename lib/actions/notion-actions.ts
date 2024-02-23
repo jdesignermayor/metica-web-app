@@ -93,7 +93,7 @@ export async function getDatabases(): Promise<Array<NotionDatabasesType | []>> {
     }
 }
 
-export async function getDatabaseDataById({ databaseId }: { databaseId: string }): Promise<Array<NotionDatabasePropertiesType>> {
+export async function getDatabaseDataById({ databaseId, onlyNullProps = false }: { databaseId: string, onlyNullProps: boolean }): Promise<Array<NotionDatabasePropertiesType> | any> {
     const headers = await getHeaders();
 
     try {
@@ -113,9 +113,33 @@ export async function getDatabaseDataById({ databaseId }: { databaseId: string }
                     created_time: item.created_time,
                     properties: item.properties
                 }
-            })
+            });
+
+            if(onlyNullProps){
+                const removeDatabaseInfoValues = computedDabaseInfo.map((props) => {
+                    let myObject = props.properties;
+                    
+                    if(myObject){
+                        for(let item of Object.keys(myObject)) {
+                            if(item){
+                                // @ts-ignore or @ts-expect-error immediately before the erroring line.
+                                myObject[item] = null
+                            }
+                         
+                        }
+                    }
+
+                    return {
+                        properties: myObject
+                    }
+                });
+
+                console.log('return onlyNullProps:', removeDatabaseInfoValues)
+                return removeDatabaseInfoValues;
+            }
 
             return computedDabaseInfo;
+
         } else {
             return [];
         }

@@ -23,6 +23,9 @@ export async function getAISuggestions({ databaseInfo }: { databaseInfo: NotionD
     });
 
     if (databaseInfo?.length > 0) {
+
+        console.log('csvProvidingData: ', csvProvidingData);
+
         const req = await fetch(`${process.env.NEXT_MISTRAL_API_URL}/chat/completions`, {
             method: 'POST',
             headers: DEFAULT_HEADERS,
@@ -30,10 +33,10 @@ export async function getAISuggestions({ databaseInfo }: { databaseInfo: NotionD
                 model: "mistral-tiny",
                 messages: [{
                     role: "system",
-                    content: `based on this data: ${JSON.stringify(csvProvidingData)}`
+                    content: `based on the key of every property: ${JSON.stringify(csvProvidingData)}`
                 }, {
                     role: "user",
-                    content: "give me suggestions in this mandatory format: [{ chart_type: type(line,bar,pie,etc...), versus: val1-vs-val2, suggestion(shorter) }] about what charts can i generate whit that data, please respond in json format, do not add comments."
+                    content: "give me suggestions in this format(do not change it):[{chart_type:type(line,bar,pie,scatter,table,no more),versus:val1-vs-val2,suggestion(max 55 characters)}] about what charts can i generate width that keys, please respond in JSON format,do not add comments"
                 }]
             })
         })
