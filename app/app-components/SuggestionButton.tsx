@@ -1,28 +1,31 @@
 import { Button } from "@/components/ui/button";
-import IconPie from "@icons/IconPie";
-import IconBar from "@icons/IconBar";
-import IconLine from "@icons/IconLine";
-import IconScatter from "@icons/IconScatter";
+import { AlignLeft, BarChart3, LineChart, PieChart, ScatterChart, Sparkle } from "lucide-react";
 
 function CurrentIcon({ type }: { type: string }) {
     switch (type) {
         case 'pie':
-            return <IconPie />;
+            return <PieChart strokeWidth={2} className=" text-[#82fbfb]" />;
 
         case 'bar':
-            return <IconBar />;
+            return <BarChart3 strokeWidth={2} className=" text-[#faef8d]" />;
 
         case 'line':
-            return <IconLine />;
+            return <LineChart strokeWidth={2} className=" text-[#aeff9d]"/>;
 
         case 'scatter':
-            return <IconScatter />;
+            return <ScatterChart strokeWidth={2} className=" text-[#caabfe]" />;
+
+        case 'table':
+            return <AlignLeft strokeWidth={2} className=" text-[#f6a6d9]" />
     }
 }
 
 export default function SuggestionButton({ suggestionText, chartType = '' }: { suggestionText: string, chartType: string }) {
     return (<Button variant={'outline'} className="flex gap-2 rounded-full text-sm">
-        <CurrentIcon type={chartType} />
+        <Sparkle className=" text-white" strokeWidth={2} />
         {suggestionText}
+        <div className="flex gap-3 items-center">
+            <p>\</p> <CurrentIcon type={chartType} />
+        </div>
     </Button>)
 }

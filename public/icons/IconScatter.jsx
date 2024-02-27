@@ -1,2 +1,0 @@
-const IconScatter = () => (<svg className="w-3.5 h-3.5 text-green-500 dark:text-green-800" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path stroke="currentColor" d="m2 2h2v18h18v2h-20zm7 8a3 3 0 0 1 3 3 3 3 0 0 1 -3 3 3 3 0 0 1 -3-3 3 3 0 0 1 3-3m4-8a3 3 0 0 1 3 3 3 3 0 0 1 -3 3 3 3 0 0 1 -3-3 3 3 0 0 1 3-3m5 10a3 3 0 0 1 3 3 3 3 0 0 1 -3 3 3 3 0 0 1 -3-3 3 3 0 0 1 3-3z" /></svg>)
-export default IconScatter;

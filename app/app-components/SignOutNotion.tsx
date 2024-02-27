@@ -5,6 +5,7 @@ import { Card, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import supabase from "@/lib/supabase/client";
 import { AvatarFallback } from "@radix-ui/react-avatar";
+import { LogOut } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 
@@ -23,7 +24,8 @@ export default function SignOutNotion() {
     }
 
     return <nav className="flex items-center gap-5">
-        <Button variant="outline" onClick={handleLogout}>
+        <Button variant="outline" className="flex gap-3" onClick={handleLogout}>
+            <LogOut strokeWidth={2} />
             Sign out from Notion
         </Button>
     </nav>

@@ -11,7 +11,14 @@ type InitialStateType = {
     flags: {
         isDatabasesLoading: boolean;
         isSuggestionsLoading: boolean;
+        shouldCloseInitialCollapsible: boolean;
+        isExtractingDatabaseByIdData: boolean;
+        isPanelReady: boolean;
     },
+    currentDatabase: {
+        id: string | null;
+        title: string | null;
+    }
 };
 
 const InitialState: InitialStateType = {
@@ -22,7 +29,14 @@ const InitialState: InitialStateType = {
     flags: {
         isDatabasesLoading: false,
         isSuggestionsLoading: false,
+        shouldCloseInitialCollapsible: false,
+        isExtractingDatabaseByIdData: false,
+        isPanelReady: false,
     },
+    currentDatabase: {
+        id: null,
+        title: null,
+    }
 }
 
 type StoreType = {
@@ -34,6 +48,9 @@ type StoreType = {
     flags: {
         isDatabasesLoading: boolean;
         isSuggestionsLoading: boolean;
+        shouldCloseInitialCollapsible: boolean;
+        isExtractingDatabaseByIdData: boolean;
+        isPanelReady: boolean
     },
     getDatabases: () => void;
     getSuggestions: ({ databaseId }: { databaseId: string }) => void;
@@ -50,11 +67,10 @@ const useAppStore = create<StoreType>()(zukeeper((set: any) => ({
         return set({ databases: databasesData, isLoading: false, flags: { isDatabasesLoading: false } })
     },
     getSuggestions: async ({ databaseId }: { databaseId: string }) => {
-        set({ isLoading: true, flags: { isSuggestionsLoading: true } });
+        set({ isLoading: true, flags: { isSuggestionsLoading: true, isExtractingDatabaseByIdData: true, isPanelReady: false } });
         const databaseIdData = await getDatabaseDataById({ databaseId, onlyNullProps: true });
         const mistralSuggestions = await getAISuggestions({ databaseInfo: databaseIdData as NotionDatabasePropertiesType[] });
-        console.log('mistralSuggestions:', mistralSuggestions)
-        return set({ suggestions: mistralSuggestions, isLoading: false, flags: { isSuggestionsLoading: false } })
+        return set((state : any) => ({ ...state, suggestions: mistralSuggestions, isExtractingDatabaseByIdData: false,  isLoading: false, flags: { isSuggestionsLoading: false, shouldCloseInitialCollapsible: true, isPanelReady: true } }))
     },
     setIsLoading: () => set({ isLoading: true }),
     clearSessionStore: () => set(InitialState),

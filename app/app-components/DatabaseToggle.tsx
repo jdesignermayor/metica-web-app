@@ -18,16 +18,16 @@ export function DatabaseToggle({ databases }: any) {
         <form>
             {
                 databases?.length > 0 &&
-                <RadioGroup defaultValue="0" onValueChange={handleChange}>
+                <RadioGroup defaultValue="0" onValueChange={handleChange} className="flex flex-col gap-5">
                     <div className="flex items-center space-x-2">
                         <RadioGroupItem value="" id={`id-`} />
                         <Label htmlFor={`id-`}>No one</Label>
                     </div>
                     {
                         databases?.length > 0 && databases?.map((item: NotionDatabasesType, index: any) => (
-                            <div key={index} className="flex items-center space-x-2">
-                                <RadioGroupItem value={item.id} id={`id-${index}`} />
-                                <Label htmlFor={`id-${index}`}>{item.title}</Label>
+                            <div key={item.id} className="flex items-center space-x-2 ">
+                                <RadioGroupItem value={item.id} id={`id-${item.id}`} />
+                                <Label htmlFor={`id-${item.id}`}>{item.title}</Label>
                             </div>
                         ))
                     }

@@ -16,7 +16,7 @@ export default function Navbar({ userData = null }: any) {
             {!userData?.provider_token ? (<li>
                 <SignInNotion variant={'outline'} />
             </li>) : (<li>
-                <SignOutNotion />
+                <SignOutNotion/>
             </li>)}
         </ul>
     </header>

@@ -100,6 +100,9 @@ export async function getDatabaseDataById({ databaseId, onlyNullProps = false }:
         const req = await fetch(`${process.env.NEXT_PUBLIC_NOTION_API_URL}/databases/${databaseId}/query`, {
             headers,
             method: 'POST',
+            body: JSON.stringify({
+                page_size: 1,
+            })
         })
 
         const { results } = await req.json();
@@ -128,13 +131,14 @@ export async function getDatabaseDataById({ databaseId, onlyNullProps = false }:
                          
                         }
                     }
+                    
 
                     return {
                         properties: myObject
                     }
                 });
-
-                console.log('return onlyNullProps:', removeDatabaseInfoValues)
+                
+                 console.log('removeDatabaseInfoValues:', removeDatabaseInfoValues)
                 return removeDatabaseInfoValues;
             }
 
