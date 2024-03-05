@@ -1,11 +1,11 @@
 import { NotionDatabasePropertiesType, getDatabaseDataById, getDatabases } from "@actions/notion-actions";
-import { MistralSuggestionsType, getAISuggestions } from "@actions/mistral-actions";
+import { MistralSuggestionsType, getAISuggestions, getAIChartData } from "@actions/mistral-actions";
 import { create } from "zustand";
 import zukeeper from "zukeeper";
 
 type InitialStateType = {
     databases: any;
-    databaseByIdInfo: null;
+    databaseSelectedId: null;
     suggestions: [];
     isLoading: boolean;
     flags: {
@@ -23,7 +23,7 @@ type InitialStateType = {
 
 const InitialState: InitialStateType = {
     databases: null,
-    databaseByIdInfo: null,
+    databaseSelectedId: null,
     suggestions: [],
     isLoading: false,
     flags: {
@@ -41,7 +41,7 @@ const InitialState: InitialStateType = {
 
 type StoreType = {
     databases: any;
-    databaseByIdInfo: null;
+    databaseSelectedId: null;
     suggestions: Array<MistralSuggestionsType> | [];
     userInfo: null;
     isLoading: boolean;
@@ -54,6 +54,7 @@ type StoreType = {
     },
     getDatabases: () => void;
     getSuggestions: ({ databaseId }: { databaseId: string }) => void;
+    getSuggestedChart: (item: MistralSuggestionsType) => void;
     setUserInfo: (userInfo: any) => void;
     setIsLoading: () => void;
     clearSessionStore: () => void;
@@ -68,9 +69,16 @@ const useAppStore = create<StoreType>()(zukeeper((set: any) => ({
     },
     getSuggestions: async ({ databaseId }: { databaseId: string }) => {
         set({ isLoading: true, flags: { isSuggestionsLoading: true, isExtractingDatabaseByIdData: true, isPanelReady: false } });
-        const databaseIdData = await getDatabaseDataById({ databaseId, onlyNullProps: true });
+        const databaseIdData = await getDatabaseDataById({ databaseId, isToGetSuggestions: true, pageLimit: 5 });
         const mistralSuggestions = await getAISuggestions({ databaseInfo: databaseIdData as NotionDatabasePropertiesType[] });
-        return set((state : any) => ({ ...state, suggestions: mistralSuggestions, isExtractingDatabaseByIdData: false,  isLoading: false, flags: { isSuggestionsLoading: false, shouldCloseInitialCollapsible: true, isPanelReady: true } }))
+        console.log('mistralSuggestions:', mistralSuggestions)
+        return set((state: any) => ({ ...state, databaseSelectedId: databaseId, suggestions: mistralSuggestions, isExtractingDatabaseByIdData: false, isLoading: false, flags: { isSuggestionsLoading: false, shouldCloseInitialCollapsible: true, isPanelReady: true } }))
+    },
+    getSuggestedChart: (item: MistralSuggestionsType) => {
+        const databaseSelectedId = useAppStore.getState().databaseSelectedId;
+        if (databaseSelectedId) {
+            const chartData = getAIChartData({ databaseId: databaseSelectedId, ...item })
+        }
     },
     setIsLoading: () => set({ isLoading: true }),
     clearSessionStore: () => set(InitialState),

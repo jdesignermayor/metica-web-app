@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { MistralSuggestionsType, getAIChartData } from "@/lib/actions/mistral-actions";
 import { AlignLeft, BarChart3, LineChart, PieChart, ScatterChart, Sparkle } from "lucide-react";
+import { useAppStore } from "@store/store";
 
 function CurrentIcon({ type }: { type: string }) {
     switch (type) {
@@ -10,7 +12,7 @@ function CurrentIcon({ type }: { type: string }) {
             return <BarChart3 strokeWidth={2} className=" text-[#faef8d]" />;
 
         case 'line':
-            return <LineChart strokeWidth={2} className=" text-[#aeff9d]"/>;
+            return <LineChart strokeWidth={2} className=" text-[#aeff9d]" />;
 
         case 'scatter':
             return <ScatterChart strokeWidth={2} className=" text-[#caabfe]" />;
@@ -20,12 +22,18 @@ function CurrentIcon({ type }: { type: string }) {
     }
 }
 
-export default function SuggestionButton({ suggestionText, chartType = '' }: { suggestionText: string, chartType: string }) {
-    return (<Button variant={'outline'} className="flex gap-2 rounded-full text-sm">
+export default function SuggestionButton(props: MistralSuggestionsType) {
+    const { getSuggestedChart } = useAppStore();
+
+    const onHandleSuggestion = (item: MistralSuggestionsType) => {
+        getSuggestedChart(item);
+    }
+
+    return (<Button variant={'outline'} className="flex gap-2 rounded-full text-sm" onClick={() => onHandleSuggestion(props)}>
         <Sparkle className=" text-white" strokeWidth={2} />
-        {suggestionText}
+        {props.suggestion}
         <div className="flex gap-3 items-center">
-            <p>\</p> <CurrentIcon type={chartType} />
+            <p>\</p> <CurrentIcon type={props.chart_type} />
         </div>
     </Button>)
 }

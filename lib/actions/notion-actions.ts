@@ -93,16 +93,14 @@ export async function getDatabases(): Promise<Array<NotionDatabasesType | []>> {
     }
 }
 
-export async function getDatabaseDataById({ databaseId, onlyNullProps = false }: { databaseId: string, onlyNullProps: boolean }): Promise<Array<NotionDatabasePropertiesType> | any> {
+export async function getDatabaseDataById({ databaseId, isToGetSuggestions = false, pageLimit = 5 }: { databaseId: string, isToGetSuggestions: boolean, pageLimit: number }): Promise<Array<NotionDatabasePropertiesType> | any> {
     const headers = await getHeaders();
 
     try {
         const req = await fetch(`${process.env.NEXT_PUBLIC_NOTION_API_URL}/databases/${databaseId}/query`, {
             headers,
             method: 'POST',
-            body: JSON.stringify({
-                page_size: 1,
-            })
+            body: isToGetSuggestions ? JSON.stringify({  page_size: 3 }) : JSON.stringify({ page_size: pageLimit }),
         })
 
         const { results } = await req.json();
@@ -118,27 +116,26 @@ export async function getDatabaseDataById({ databaseId, onlyNullProps = false }:
                 }
             });
 
-            if(onlyNullProps){
+            if (isToGetSuggestions) {
                 const removeDatabaseInfoValues = computedDabaseInfo.map((props) => {
                     let myObject = props.properties;
-                    
-                    if(myObject){
-                        for(let item of Object.keys(myObject)) {
-                            if(item){
-                                // @ts-ignore or @ts-expect-error immediately before the erroring line.
-                                myObject[item] = null
-                            }
-                         
-                        }
-                    }
-                    
+
+                    // if (myObject) {
+                    //     for (let item of Object.keys(myObject)) {
+                    //         if (item) {
+                    //             // @ts-ignore or @ts-expect-error immediately before the erroring line.
+                    //             myObject[item] = null
+                    //         }
+
+                    //     }
+                    // }
+
 
                     return {
                         properties: myObject
                     }
                 });
-                
-                 console.log('removeDatabaseInfoValues:', removeDatabaseInfoValues)
+
                 return removeDatabaseInfoValues;
             }
 
