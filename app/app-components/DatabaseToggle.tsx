@@ -26,7 +26,7 @@ export function DatabaseToggle({ databases }: any) {
                     {
                         databases?.length > 0 && databases?.map((item: NotionDatabasesType, index: any) => (
                             <div key={item.id} className="flex items-center space-x-2 ">
-                                <RadioGroupItem value={item.id} id={`id-${item.id}`} />
+                                <RadioGroupItem value={item.id} id={`id-${item.id}`} tabIndex={0} />
                                 <Label htmlFor={`id-${item.id}`}>{item.title}</Label>
                             </div>
                         ))

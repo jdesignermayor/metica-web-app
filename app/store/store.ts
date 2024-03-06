@@ -1,7 +1,6 @@
 import { NotionDatabasePropertiesType, getDatabaseDataById, getDatabases } from "@actions/notion-actions";
 import { MistralSuggestionsType, getAISuggestions, getAIChartData } from "@actions/mistral-actions";
 import { create } from "zustand";
-import zukeeper from "zukeeper";
 
 type InitialStateType = {
     databases: any;
@@ -52,16 +51,23 @@ type StoreType = {
         isExtractingDatabaseByIdData: boolean;
         isPanelReady: boolean
     },
+    currentDatabase?: {
+        id: string | null,
+        title: string | null,
+    },
     getDatabases: () => void;
     getSuggestions: ({ databaseId }: { databaseId: string }) => void;
     getSuggestedChart: (item: MistralSuggestionsType) => void;
     setUserInfo: (userInfo: any) => void;
     setIsLoading: () => void;
+    setCurrentDatabase: (database: { id: string | null, title: string | null }) => void;
     clearSessionStore: () => void;
 };
 
-const useAppStore = create<StoreType>()(zukeeper((set: any) => ({
+const useAppStore = create<StoreType>((set: any) => ({
     ...InitialState,
+    userInfo: null,
+    setUserInfo: () => { },
     getDatabases: async () => {
         set({ isLoading: true, flags: { isDatabasesLoading: true } });
         const databasesData = await getDatabases();
@@ -69,9 +75,14 @@ const useAppStore = create<StoreType>()(zukeeper((set: any) => ({
     },
     getSuggestions: async ({ databaseId }: { databaseId: string }) => {
         set({ isLoading: true, flags: { isSuggestionsLoading: true, isExtractingDatabaseByIdData: true, isPanelReady: false } });
-        const databaseIdData = await getDatabaseDataById({ databaseId, isToGetSuggestions: true, pageLimit: 5 });
-        const mistralSuggestions = await getAISuggestions({ databaseInfo: databaseIdData as NotionDatabasePropertiesType[] });
-        console.log('mistralSuggestions:', mistralSuggestions)
+        const currentDatabases = useAppStore.getState().databases;
+        const currentDatabase = currentDatabases.find((item: any) => item.id === databaseId);
+
+        const databaseByIdData = await getDatabaseDataById({ databaseId, isToGetSuggestions: true, pageLimit: 5 });
+        const mistralSuggestions = await getAISuggestions({ databaseInfo: databaseByIdData as NotionDatabasePropertiesType[] });
+        if (currentDatabase) {
+            set({ currentDatabase: { id: currentDatabase.id, title: currentDatabase.title } });
+        }
         return set((state: any) => ({ ...state, databaseSelectedId: databaseId, suggestions: mistralSuggestions, isExtractingDatabaseByIdData: false, isLoading: false, flags: { isSuggestionsLoading: false, shouldCloseInitialCollapsible: true, isPanelReady: true } }))
     },
     getSuggestedChart: (item: MistralSuggestionsType) => {
@@ -80,8 +91,9 @@ const useAppStore = create<StoreType>()(zukeeper((set: any) => ({
             const chartData = getAIChartData({ databaseId: databaseSelectedId, ...item })
         }
     },
+    setCurrentDatabase: (database: { id: string | null, title: string | null }) => set({ currentDatabase: database }),
     setIsLoading: () => set({ isLoading: true }),
     clearSessionStore: () => set(InitialState),
-})));
+}));
 
 export { useAppStore };

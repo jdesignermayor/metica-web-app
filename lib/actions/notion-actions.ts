@@ -41,7 +41,8 @@ export type NotionDatabasePropertiesType = {
     properties: string | null;
 }
 
-const NOTION_VERSION = '2022-06-28'
+const NOTION_VERSION = '2022-06-28';
+const DEFAULT_PAGES_LIMIT = 100;
 
 const getHeaders = async () => {
     const supabase = await createSupabaseClient();
@@ -93,14 +94,15 @@ export async function getDatabases(): Promise<Array<NotionDatabasesType | []>> {
     }
 }
 
-export async function getDatabaseDataById({ databaseId, isToGetSuggestions = false, pageLimit = 5 }: { databaseId: string, isToGetSuggestions: boolean, pageLimit: number }): Promise<Array<NotionDatabasePropertiesType> | any> {
-    const headers = await getHeaders();
 
+export async function getDatabaseDataById({ databaseId, pageLimit = DEFAULT_PAGES_LIMIT }: { databaseId: string, isToGetSuggestions: boolean, pageLimit: number }): Promise<Array<NotionDatabasePropertiesType> | []> {
+    const headers = await getHeaders();
+    console.log('databaseId:', databaseId)
     try {
         const req = await fetch(`${process.env.NEXT_PUBLIC_NOTION_API_URL}/databases/${databaseId}/query`, {
             headers,
             method: 'POST',
-            body: isToGetSuggestions ? JSON.stringify({  page_size: 3 }) : JSON.stringify({ page_size: pageLimit }),
+            body: JSON.stringify({ page_size: pageLimit }),
         })
 
         const { results } = await req.json();
@@ -116,31 +118,48 @@ export async function getDatabaseDataById({ databaseId, isToGetSuggestions = fal
                 }
             });
 
-            if (isToGetSuggestions) {
-                const removeDatabaseInfoValues = computedDabaseInfo.map((props) => {
-                    let myObject = props.properties;
-
-                    // if (myObject) {
-                    //     for (let item of Object.keys(myObject)) {
-                    //         if (item) {
-                    //             // @ts-ignore or @ts-expect-error immediately before the erroring line.
-                    //             myObject[item] = null
-                    //         }
-
-                    //     }
-                    // }
-
-
-                    return {
-                        properties: myObject
-                    }
-                });
-
-                return removeDatabaseInfoValues;
-            }
-
             return computedDabaseInfo;
 
+        } else {
+            return [];
+        }
+
+    } catch (error) {
+        return [];
+    }
+}
+
+
+export async function getDatabaseDataByIdToSuggestions({ databaseId, pageLimit = DEFAULT_PAGES_LIMIT }: { databaseId: string, isToGetSuggestions: boolean, pageLimit: number }): Promise<Array<NotionDatabasePropertiesType> | any> {
+    const headers = await getHeaders();
+
+
+    try {
+        const req = await fetch(`${process.env.NEXT_PUBLIC_NOTION_API_URL}/databases/${databaseId}/query`, {
+            headers,
+            method: 'POST',
+            body: JSON.stringify({ page_size: 3 }),
+        })
+        const { results } = await req.json();
+
+        if (results.length > 0) {
+            const databaseInfo = results as Array<NotionDatabaseReponseType>;
+
+            const computedDabaseInfo: Array<NotionDatabasePropertiesType> = databaseInfo.map((item: NotionDatabaseReponseType) => {
+                return {
+                    id: item.id,
+                    created_time: item.created_time,
+                    properties: item.properties
+                }
+            });
+
+            const removeDatabaseInfoValues = computedDabaseInfo.map((props) => {
+                let myObject = props.properties;
+                return {
+                    properties: myObject
+                }
+            });
+            return removeDatabaseInfoValues;
         } else {
             return [];
         }

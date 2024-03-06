@@ -3,7 +3,7 @@ import { json2csv } from "json-2-csv";
 import { jsonrepair } from 'jsonrepair'
 import { NotionDatabasePropertiesType, getDatabaseDataById } from "@actions/notion-actions";
 
-const MISTRAL_MODEL =  "mistral-tiny-2312";
+const MISTRAL_MODEL = "open-mixtral-8x7b";
 
 export type MistralSuggestionsType = {
     chart_type: string;
@@ -23,8 +23,6 @@ export async function getAISuggestions({ databaseInfo }: { databaseInfo: NotionD
         trimHeaderFields: true,
         trimFieldValues: true,
     });
-
-    console.log('csvProvidingData:', csvProvidingData)
 
     if (databaseInfo?.length > 0) {
         const req = await fetch(`${process.env.NEXT_MISTRAL_API_URL}/chat/completions`, {
@@ -85,7 +83,7 @@ export async function getAIChartData({ databaseId, versus, chart_type, suggestio
         method: 'POST',
         headers: DEFAULT_HEADERS,
         body: JSON.stringify({
-            model: "mistral-tiny-2312",
+            model: MISTRAL_MODEL,
             messages: [{
                 role: "system",
                 content: `based this data: ${JSON.stringify(csvProvidingData)}`
