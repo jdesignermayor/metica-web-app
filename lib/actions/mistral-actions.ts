@@ -3,7 +3,7 @@ import { json2csv } from "json-2-csv";
 import { jsonrepair } from 'jsonrepair'
 import { NotionDatabasePropertiesType, getDatabaseDataById } from "@actions/notion-actions";
 
-const MISTRAL_MODEL = "open-mixtral-8x7b";
+const MISTRAL_MODEL = "mistral-tiny-2312";
 
 export type MistralSuggestionsType = {
     chart_type: string;
@@ -11,13 +11,15 @@ export type MistralSuggestionsType = {
     suggestion: string;
 }
 
-export async function getAISuggestions({ databaseInfo }: { databaseInfo: NotionDatabasePropertiesType[] }): Promise<Array<MistralSuggestionsType | []> | undefined> {
-    const DEFAULT_HEADERS = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.NEXT_MISTRAL_API_KEY}`,
-        Accept: 'application/json',
-    };
+const DEFAULT_HEADERS = {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${process.env.NEXT_MISTRAL_API_KEY}`,
+    Accept: 'application/json',
+};
 
+let counter: number = 0;
+
+export async function getAISuggestions({ databaseInfo }: { databaseInfo: NotionDatabasePropertiesType[] }): Promise<Array<MistralSuggestionsType | []> | undefined> {
     const csvProvidingData = json2csv(databaseInfo, {
         expandNestedObjects: false,
         trimHeaderFields: true,
@@ -35,8 +37,8 @@ export async function getAISuggestions({ databaseInfo }: { databaseInfo: NotionD
                     content: `based on the key of every property: ${JSON.stringify(csvProvidingData)}`
                 }, {
                     role: "user",
-                    content: "give me useful suggestions(use spanish) in this format(do not change it and not add nested arrays):[{chart_type:type(line,bar,pie,scatter,table,no more),versus:property Type-vs-property Type,suggestion(max 20 characters - mandatory)}] about what charts can i generate width that keys, please respond in JSON format,do not add comments"
-                }]
+                    content: `give me useful random #${counter} suggestions in this format(do not change it and not add nested arrays):[{chart_type:type(line,bar,pie,scatter,table,no more),versus:property Type-vs-property Type,suggestion:(should descrive what the user can generate, in spanish, max 20 characters - mandatory)}] about what charts can i generate width that keys, please respond in JSON format,do not add comments`,
+                }],
             })
         })
 
@@ -47,11 +49,41 @@ export async function getAISuggestions({ databaseInfo }: { databaseInfo: NotionD
                 const currentReponse = choices[0].message.content;
                 const reparedResponse = JSON.parse(jsonrepair(currentReponse));
                 const parsedResponseArray = reparedResponse?.map((item: any) => item);
+                counter++;
                 return parsedResponseArray;
-
             } catch (error) {
                 return [];
             }
+        }
+    }
+}
+
+export async function getAIChatResponse({ userPrompt }: { userPrompt: string }) {
+
+    const modelBody = JSON.stringify({
+        model: MISTRAL_MODEL,
+        messages: [{
+            role: "user",
+            content: `Based on this prompt: ${userPrompt}`
+        }, {
+            role: "system",
+            content: `give me the axisX(just one x) and axisY(on or multiples) with the following structure: [{chart_type:type(line,bar,pie,scatter,table,no more),versus:property Type-vs-property Type.please respond in JSON format,do not add comments`
+        }]
+    })
+
+    const req = await fetch(`${process.env.NEXT_MISTRAL_API_URL}/chat/completions`, {
+        method: 'POST',
+        headers: DEFAULT_HEADERS,
+        body: modelBody,
+    })
+
+    if (req.status === 200) {
+        const response = await req.json();
+        try {
+            const { choices } = response;
+            console.log('getAIChatResponse:', choices)
+        } catch (error) {
+            return [];
         }
     }
 }
@@ -62,12 +94,6 @@ export async function getAIChartData({ databaseId, versus, chart_type, suggestio
     chart_type: string
     suggestion: string
 }) {
-    const DEFAULT_HEADERS = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.NEXT_MISTRAL_API_KEY}`,
-        Accept: 'application/json',
-    };
-
     console.log('sending getDatabaseDataById fetch ...')
     const databaseInfo = await getDatabaseDataById({ databaseId, isToGetSuggestions: false, pageLimit: 5 });
 
@@ -77,8 +103,6 @@ export async function getAIChartData({ databaseId, versus, chart_type, suggestio
         trimFieldValues: true,
     });
 
-    console.log('csvProvidingData:', csvProvidingData)
-    console.log('sending completions fetch ...')
     const req = await fetch(`${process.env.NEXT_MISTRAL_API_URL}/chat/completions`, {
         method: 'POST',
         headers: DEFAULT_HEADERS,
@@ -87,7 +111,7 @@ export async function getAIChartData({ databaseId, versus, chart_type, suggestio
             messages: [{
                 role: "system",
                 content: `based this data: ${JSON.stringify(csvProvidingData)}`
-            },{
+            }, {
                 role: "system",
                 content: `return this correct format:(do not change it): [{
                     name: val(do not nested values),
@@ -112,7 +136,7 @@ export async function getAIChartData({ databaseId, versus, chart_type, suggestio
         } catch (error) {
             return [];
         }
-     
+
     }
     // console.log('csvProvidingData:', csvProvidingData)
 }

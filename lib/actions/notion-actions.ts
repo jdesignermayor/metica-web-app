@@ -138,7 +138,7 @@ export async function getDatabaseDataByIdToSuggestions({ databaseId, pageLimit =
         const req = await fetch(`${process.env.NEXT_PUBLIC_NOTION_API_URL}/databases/${databaseId}/query`, {
             headers,
             method: 'POST',
-            body: JSON.stringify({ page_size: 3 }),
+            body: JSON.stringify({ page_size: 2 }),
         })
         const { results } = await req.json();
 

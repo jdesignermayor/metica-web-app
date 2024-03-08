@@ -1,47 +1,53 @@
 import { Badge } from "@/components/ui/badge";
 import SearchFieldByAI from "@ui-components/SearchFieldByAI";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAppStore } from "@store/store";
 import SuggestionButton from "./SuggestionButton";
 import Typewriter from 'typewriter-effect';
+import { RefreshCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import IconLoading from "@/public/icons/IconLoading";
 
-const initialComment = {
-    id: 1,
-    message: "Welcome to Metica! Let's kick things off by leveraging your data. Below, you'll find a selection of suggested charts tailored to your dataset, each designed to maximize clarity and insight.",
-    suggestions: null,
-};
+type CommentType = {
+    id: number;
+    message: string;
+    suggestions?: any;
+    chartComponent?: any;
+    isSuggest?: boolean;
+    isChartReady?: boolean;
+}
 
 export default function ChatAICreator() {
-    const [currentComments, setCurrentComments] = useState<any>([]);
     const [isSuggestionsReady, setIsSuggestionsReady] = useState(false);
-    const { suggestions } = useAppStore();
+    const ref = useRef<HTMLDivElement>(null);
+    const { suggestions, comments, flags: { isRefreshingSuggestions }, getSuggestions } = useAppStore();
 
-    const getSuggestionList = useMemo(() => {
-        if (suggestions.length > 0) {
-            const currentSuggestions = suggestions.map((item, index) => <SuggestionButton key={index} {...item} />)
-            setCurrentComments([{ ...initialComment, suggestions: currentSuggestions }]);
-        }
-    }, [suggestions])
+    const onHandleRefreshSuggestions = () => {
+        getSuggestions({ isInitial: false });
+    }
 
     useEffect(() => {
-        getSuggestionList
-    }, [suggestions])
+        if (comments && comments.length) {
+            ref.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "end",
+            });
+        }
+    }, [comments]);
 
     return (
         <div>
-
-
-            <span className="font-bold">Create your visuals with Metica <Badge className=" bg-purple-900 bg-opacity-30 text-purple-400 hover:text-black">BETA</Badge> </span>
-            <div className=" bg-[#121212] rounded-2xl px-2 py-2 h-[620px] overflow-x-auto mt-4 " style={{ colorScheme: 'dark' }}>
+            <span className="font-bold">Create your visuals with Metica <Badge className=" bg-purple-900 bg-opacity-30 text-purple-400 hover:text-black">BETA</Badge></span>
+            <div className=" bg-[#121212] min-w-[450px] rounded-2xl px-2 py-2 h-[620px] overflow-x-auto my-4 divide-y divide-[#252525]" style={{ colorScheme: 'dark' }}>
                 {
-                    currentComments.map((comment: any) => {
+                    comments && comments.length > 0 && comments.map(({ id, message, isSuggest }) => {
                         return (
-                            <div key={comment.id} >
+                            <div key={id}>
                                 <div className="typing-effect overflow-hidden whitespace-no-wrap mx-auto inline-block p-4">
                                     <p className="font-bold">Metica</p>
                                     <Typewriter
                                         onInit={(typewriter) => {
-                                            typewriter.typeString(comment.message)
+                                            typewriter.typeString(message)
                                                 .callFunction(() => {
                                                     setIsSuggestionsReady(true);
                                                     console.log('String typed out!');
@@ -49,20 +55,25 @@ export default function ChatAICreator() {
                                                 .start();
                                         }}
                                         options={{
-                                            delay: 15,
+                                            loop: false,
+                                            delay: 2,
                                         }}
                                     />
                                     <div className="flex flex-wrap gap-3 mt-4">
-                                        {isSuggestionsReady && <div className="flex flex-wrap gap-3  animate-fade">{comment.suggestions}</div>}
+                                        {isSuggestionsReady && <div className="flex flex-wrap gap-3  animate-fade">{suggestions.map((item, index) => <SuggestionButton key={index} {...item} />)}
+                                            <Button variant={'outline'} className="flex gap-2 items-center" onClick={onHandleRefreshSuggestions}>
+                                                {isRefreshingSuggestions ? <span className="flex gap-2 items-center"><IconLoading />Refreshing...</span> : <span className="flex gap-2 items-center"><RefreshCcw />Refresh suggestions</span>}
+                                            </Button>
+                                        </div>}
                                     </div>
                                 </div>
-
                             </div>
                         )
                     })
                 }
+                <div ref={ref} />
             </div>
-            <div className=" bottom-0">
+            <div className="">
                 <SearchFieldByAI />
             </div>
         </div>

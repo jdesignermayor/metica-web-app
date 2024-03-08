@@ -33,8 +33,8 @@ export default function InteractivePanel({ userData }: { userData: any }) {
             <article className=" px-4 lg:px-72 2xl:px-[20%]">
                 <DatabasePicker />
             </article>
-            {isPanelReady && <article className="flex gap-5 lg:mx-72 2xl:mx-[20%] lg:h-[750px]">
-                <div className="w-9/12 p-5 rounded-2xl border border-[#252525]">
+            {isPanelReady && <article className="flex gap-5 lg:mx-72 2xl:mx-[20%] lg:h-[780px]">
+                <div className="max-w-9/12 w-9/12 p-5 rounded-2xl border border-[#252525]">
                     <ChatAICreator />
                 </div>
                 <div className=" w-full p-5 rounded-2xl border border-[#252525]">

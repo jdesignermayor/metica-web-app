@@ -11,7 +11,7 @@ export default function DatabasePicker() {
     const [isOpen, setIsOpen] = useState(true);
 
     useEffect(() => {
-        if (!isExtractingDatabaseByIdData) setIsOpen(false)
+        if (!isExtractingDatabaseByIdData && isOpen) setIsOpen(false)
         return () => {
             setIsOpen(true)
         }

@@ -10,7 +10,7 @@ export function DatabaseToggle({ databases }: any) {
 
     const handleChange = async (databaseId: string) => {
         if (databaseId) {
-            getSuggestions({ databaseId })
+            getSuggestions({ databaseId, isInitial: true })
         }
     }
 
