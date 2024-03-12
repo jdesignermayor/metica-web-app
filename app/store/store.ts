@@ -23,11 +23,12 @@ type InitialStateType = {
     }
 };
 
-type CommentType = {
+export type CommentType = {
     id: number;
     message: string;
     chartComponent?: any;
     isSuggest?: boolean;
+    suggestions?: Array<MistralSuggestionsType> | [];
     isChartReady?: boolean;
 }
 
@@ -54,6 +55,7 @@ type StoreType = {
     getDatabases: () => void;
     getSuggestions: ({ databaseId, isInitial }: { databaseId?: string, isInitial: boolean }) => void;
     setIsLoading: () => void;
+    addComment: (comment: CommentType) => void;
     setCurrentDatabase: (database: { id: string | null, title: string | null }) => void;
     clearSessionStore: () => void;
 };
@@ -79,9 +81,11 @@ const InitialState: InitialStateType = {
     }
 }
 
-const INITIAL_COMMENT: CommentType = {
+let INITIAL_COMMENT: CommentType = {
     id: 0,
     message: `Welcome to Metica! Let's kick things off by leveraging your data. Below, you'll find a selection of suggested charts tailored to your dataset.`,
+    isSuggest: true,
+    suggestions: [],
 }
 
 const useAppStore = create<StoreType>((set: any) => ({
@@ -108,15 +112,23 @@ const useAppStore = create<StoreType>((set: any) => ({
         const mistralSuggestions = await getAISuggestions({ databaseInfo: databaseByIdData as NotionDatabasePropertiesType[] });
 
         if (isInitial) {
+            INITIAL_COMMENT.suggestions = mistralSuggestions as MistralSuggestionsType[];
             return set((state: any) => ({ ...state, comments: [INITIAL_COMMENT], currentDatabase: currentDatabase, databaseSelectedId: currentDatabaseId, suggestions: mistralSuggestions, isExtractingDatabaseByIdData: false, isLoading: false, flags: { isSuggestionsLoading: false, shouldCloseInitialCollapsible: true, isPanelReady: true } }))
+        }else{
+            const grabbedComments = useAppStore.getState().comments;
+            const editedComments = grabbedComments.map((item: CommentType) => {
+                if (item.isSuggest) {
+                    console.log("item:", { ...item, suggestions: mistralSuggestions })
+                    return { ...item, suggestions: mistralSuggestions }
+                }
+                return item;
+            });
+            return set((state: any) => ({ ...state, comments: editedComments, databaseSelectedId: currentDatabaseId, suggestions: mistralSuggestions, isExtractingDatabaseByIdData: false, isLoading: false, flags: { isRefreshingSuggestions: false, isPanelReady: true } }))
         }
-        console.log('mistralSuggestions:', mistralSuggestions)
-
-        return set((state: any) => ({ ...state, databaseSelectedId: currentDatabaseId, suggestions: mistralSuggestions, isExtractingDatabaseByIdData: false, isLoading: false, flags: { isRefreshingSuggestions: false, isPanelReady: true } }))
     },
     getChatResponse: async () => { },
     addComment: (comment: CommentType) => set((state: any) => {
-        set({ isLoadingComment: true });
+        // set({ isLoadingComment: true });
         return { comments: [...state.comments, comment] }
     }),
     setCurrentDatabase: (database: { id: string | null, title: string | null }) => set({ currentDatabase: database }),

@@ -1,20 +1,24 @@
-import { CornerDownLeft } from "lucide-react";
-import TextareaAutosize from 'react-textarea-autosize';
-import { useForm, SubmitHandler } from "react-hook-form"
+import TextareaAutosize from "react-textarea-autosize";
 
-type Inputs = {
+import { CornerDownLeft } from "lucide-react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { useAppStore } from "@store/store";
+
+type InputsType = {
     prompt: string
 }
 
 export default function SearchFieldByAI() {
+    const { addComment } = useAppStore();
+
     const {
         register,
         handleSubmit,
         formState
-    } = useForm<Inputs>()
+    } = useForm<InputsType>()
 
-    const onSubmit: SubmitHandler<Inputs> = (data) => {
-        console.log(data)
+    const onSubmit: SubmitHandler<InputsType> = (data) => {
+        addComment({ id: Math.random(), message: data.prompt, isSuggest: false })
     }
 
     return <div tabIndex={0}
