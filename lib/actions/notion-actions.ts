@@ -95,7 +95,7 @@ export async function getDatabases(): Promise<Array<NotionDatabasesType | []>> {
 }
 
 
-export async function getDatabaseDataById({ databaseId, pageLimit = DEFAULT_PAGES_LIMIT }: { databaseId: string, isToGetSuggestions: boolean, pageLimit: number }): Promise<Array<NotionDatabasePropertiesType> | []> {
+export async function getDatabaseDataById({ databaseId, pageLimit = DEFAULT_PAGES_LIMIT }: { databaseId: string, pageLimit: number }): Promise<Array<NotionDatabasePropertiesType> | []> {
     const headers = await getHeaders();
     console.log('databaseId:', databaseId)
     try {

@@ -1,5 +1,5 @@
 import { NotionDatabasePropertiesType, getDatabaseDataById, getDatabases } from "@actions/notion-actions";
-import { MistralSuggestionsType, getAISuggestions } from "@actions/mistral-actions";
+import { MistralSuggestionsType, getAIChatResponse, getAISuggestions } from "@actions/mistral-actions";
 import { create } from "zustand";
 
 type InitialStateType = {
@@ -14,7 +14,7 @@ type InitialStateType = {
         shouldCloseInitialCollapsible: boolean;
         isExtractingDatabaseByIdData: boolean;
         isRefreshingSuggestions: boolean;
-        isLoadingComment: boolean;
+        isGeneratingAIresponse: boolean;
         isPanelReady: boolean;
     },
     currentDatabase: {
@@ -23,6 +23,7 @@ type InitialStateType = {
     }
 };
 
+
 export type CommentType = {
     id: number;
     message: string;
@@ -30,6 +31,7 @@ export type CommentType = {
     isSuggest?: boolean;
     suggestions?: Array<MistralSuggestionsType> | [];
     isChartReady?: boolean;
+    type: 'question' | 'answear';
 }
 
 type StoreType = {
@@ -42,7 +44,7 @@ type StoreType = {
     flags: {
         isDatabasesLoading: boolean | null;
         isSuggestionsLoading: boolean | null;
-        isLoadingComment?: boolean | null;
+        isGeneratingAIresponse?: boolean | null;
         isExtractingDatabaseByIdData: boolean | null;
         isRefreshingSuggestions: boolean | null;
         isPanelReady: boolean | null;
@@ -70,7 +72,7 @@ const InitialState: InitialStateType = {
         isDatabasesLoading: false,
         isSuggestionsLoading: false,
         isExtractingDatabaseByIdData: false,
-        isLoadingComment: false,
+        isGeneratingAIresponse: false,
         isRefreshingSuggestions: false,
         isPanelReady: false,
         shouldCloseInitialCollapsible: false,
@@ -86,6 +88,7 @@ let INITIAL_COMMENT: CommentType = {
     message: `Welcome to Metica! Let's kick things off by leveraging your data. Below, you'll find a selection of suggested charts tailored to your dataset.`,
     isSuggest: true,
     suggestions: [],
+    type: 'answear',
 }
 
 const useAppStore = create<StoreType>((set: any) => ({
@@ -108,7 +111,7 @@ const useAppStore = create<StoreType>((set: any) => ({
 
         const currentDatabaseId = isInitial ? databaseId : useAppStore.getState().databaseSelectedId as string;
 
-        const databaseByIdData = await getDatabaseDataById({ databaseId: currentDatabaseId, isToGetSuggestions: true, pageLimit: 5 });
+        const databaseByIdData = await getDatabaseDataById({ databaseId: currentDatabaseId, pageLimit: 5 });
         const mistralSuggestions = await getAISuggestions({ databaseInfo: databaseByIdData as NotionDatabasePropertiesType[] });
 
         if (isInitial) {
@@ -118,7 +121,6 @@ const useAppStore = create<StoreType>((set: any) => ({
             const grabbedComments = useAppStore.getState().comments;
             const editedComments = grabbedComments.map((item: CommentType) => {
                 if (item.isSuggest) {
-                    console.log("item:", { ...item, suggestions: mistralSuggestions })
                     return { ...item, suggestions: mistralSuggestions }
                 }
                 return item;
@@ -127,10 +129,16 @@ const useAppStore = create<StoreType>((set: any) => ({
         }
     },
     getChatResponse: async () => { },
-    addComment: (comment: CommentType) => set((state: any) => {
-        // set({ isLoadingComment: true });
-        return { comments: [...state.comments, comment] }
-    }),
+    addComment: async (comment: CommentType) => {
+        set((state: any) => ({ comments: [...state.comments, comment], flags: { ...state.flags, isGeneratingAIresponse: true } }))
+        const modelResponse = await getAIChatResponse({ userPrompt: comment.message, databaseId: useAppStore.getState().databaseSelectedId as string});
+        set((state: any) => ({ comments: [...state.comments, {
+            id: Math.random(),
+            message: modelResponse,
+            isSuggest: false,
+            type: 'answear'
+        }], flags: { ...state.flags, isGeneratingAIresponse: false } }))
+    },
     setCurrentDatabase: (database: { id: string | null, title: string | null }) => set({ currentDatabase: database }),
     setIsLoading: () => set({ isLoading: true }),
     clearSessionStore: () => set(InitialState),

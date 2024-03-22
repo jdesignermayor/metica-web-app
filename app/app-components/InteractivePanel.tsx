@@ -37,9 +37,9 @@ export default function InteractivePanel({ userData }: { userData: any }) {
                 <div className="max-w-9/12 w-9/12 p-5 rounded-2xl border border-[#252525]">
                     <ChatAICreator />
                 </div>
-                <div className=" w-full p-5 rounded-2xl border border-[#252525]">
+                {/* <div className=" w-full p-5 rounded-2xl border border-[#252525]">
                     <ChartAIPanel />
-                </div>
+                </div> */}
             </article>}
         </section>
     )

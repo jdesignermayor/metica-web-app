@@ -14,11 +14,13 @@ export default function SearchFieldByAI() {
     const {
         register,
         handleSubmit,
-        formState
+        formState,
+        reset
     } = useForm<InputsType>()
 
     const onSubmit: SubmitHandler<InputsType> = (data) => {
-        addComment({ id: Math.random(), message: data.prompt, isSuggest: false })
+        addComment({ id: Math.random(), message: data.prompt, isSuggest: false, type: 'question' })
+        reset();
     }
 
     return <div tabIndex={0}
