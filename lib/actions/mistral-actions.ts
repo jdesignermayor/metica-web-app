@@ -70,13 +70,41 @@ let modelHistory = [{
     PieChart should return(mandatory): data[{name: val(do not nested values),value}]`
 }];
 
+export async function getSummarizedData({ databaseId }: { databaseId: string }) {
+    const databaseData = await getDatabaseDataById({ databaseId, pageLimit: 15 });
+    console.log(JSON.stringify(databaseData));
+    console.log('getSummarizedData - databaseId:', databaseId)
+    const mappedData = databaseData?.map(({ id, properties }: any) => {
+        const transformedObj = Object.keys(properties).map(key => {
+            let val = ''
+            switch (properties[key].type) {
+                case 'last_edited_by':
+                    console.log('prop last_edited_by:', properties[key]['last_edited_by'].name);
+                    val = properties[key]['last_edited_by']?.name
+                    break;
+            }
+            return {
+                key,
+                values: val,
+            }
+        })
+        return transformedObj;
+    })
+
+    console.log('mappedData:', mappedData)
+
+}
 
 export async function getAIChatResponse({ userPrompt, databaseId }: { userPrompt: string, databaseId: string }) {
     const databaseData = await getDatabaseDataById({ databaseId, pageLimit: 15 });
-    const supabase = await createSupabaseClient();
-    
+    // const supabase = await createSupabaseClient();
 
-    supabase.
+
+
+
+    // 1 I need to create a database with key - value 
+    console.log('databaseData:', databaseData)
+
 
 
     // console.log('databaseData:', JSON.stringify(databaseData))

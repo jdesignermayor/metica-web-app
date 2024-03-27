@@ -35,10 +35,15 @@ export type NotionDatabasesType = {
     title: string;
 }
 
+type NotionProperties = {
+    id: string;
+    type: string;
+}
+
 export type NotionDatabasePropertiesType = {
     id: string;
     created_time: string;
-    properties: string | null;
+    properties: Array<NotionProperties> | null;
 }
 
 const NOTION_VERSION = '2022-06-28';

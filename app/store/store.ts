@@ -1,5 +1,5 @@
 import { NotionDatabasePropertiesType, getDatabaseDataById, getDatabases } from "@actions/notion-actions";
-import { MistralSuggestionsType, getAIChatResponse, getAISuggestions } from "@actions/mistral-actions";
+import { MistralSuggestionsType, getAIChatResponse, getAISuggestions, getSummarizedData } from "@actions/mistral-actions";
 import { create } from "zustand";
 
 type InitialStateType = {
@@ -116,6 +116,7 @@ const useAppStore = create<StoreType>((set: any) => ({
 
         if (isInitial) {
             INITIAL_COMMENT.suggestions = mistralSuggestions as MistralSuggestionsType[];
+            await getSummarizedData({ databaseId: currentDatabaseId })
             return set((state: any) => ({ ...state, comments: [INITIAL_COMMENT], currentDatabase: currentDatabase, databaseSelectedId: currentDatabaseId, suggestions: mistralSuggestions, isExtractingDatabaseByIdData: false, isLoading: false, flags: { isSuggestionsLoading: false, shouldCloseInitialCollapsible: true, isPanelReady: true } }))
         }else{
             const grabbedComments = useAppStore.getState().comments;
