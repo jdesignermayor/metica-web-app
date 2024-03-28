@@ -1,5 +1,4 @@
 "use server";
-
 import createSupabaseClient from "../supabase/server";
 
 type NotionDatabaseReponseType = {
@@ -39,6 +38,38 @@ type NotionProperties = {
     id: string;
     type: string;
 }
+type FieldMultiSelectType = {
+    id: string,
+    name: string,
+    color: string,
+}
+
+type FieldNumberType = {
+    id: string;
+    type: string;
+    number: number;
+}
+
+type FieldNameTitleType = {
+    type: string;
+    text: Array<FieldNameTextType | []>;
+    annotations?: any;
+    plain_text: string;
+    href?: null;
+}
+
+type FieldNameTextType = {
+    content: string;
+    link?: null | string;
+}
+
+enum FieldsTypeList {
+    LAST_EDITED_BY = 'last_edited_by',
+    MULTI_SELECT = 'multi_select',
+    NUMBER = 'number',
+    TITLE = 'title',
+}
+
 
 export type NotionDatabasePropertiesType = {
     id: string;
@@ -134,6 +165,57 @@ export async function getDatabaseDataById({ databaseId, pageLimit = DEFAULT_PAGE
     }
 }
 
+export async function getSummarizedData({ databaseId }: { databaseId: string }) {
+    const supabase = await createSupabaseClient();
+    const databaseData = await getDatabaseDataById({ databaseId, pageLimit: 15 });
+
+    const mappedData = databaseData?.map(({ id, properties }: any) => {
+        const transformedObj = Object.keys(properties).map(key => {
+            let val = '' as any;
+            switch (properties[key].type) {
+                case FieldsTypeList.LAST_EDITED_BY:
+                    const lastEditedByValue = properties[key][FieldsTypeList.LAST_EDITED_BY]?.name;
+                    val = lastEditedByValue;
+                    break;
+
+                case FieldsTypeList.MULTI_SELECT:
+                    const multiSelectValues = properties[key][FieldsTypeList.MULTI_SELECT]?.map(({ name }: FieldMultiSelectType) => ({ name })) || [];
+                    val = multiSelectValues;
+                    break;
+
+                case FieldsTypeList.NUMBER:
+                    const numberValue = properties[key] as FieldNumberType;
+                    val = numberValue.number;
+                    break;
+
+                case FieldsTypeList.TITLE:
+                    const nameValue = properties[key]?.title[0] as FieldNameTitleType;
+                    val = nameValue.plain_text;
+                    break;
+            }
+            return {
+                key: key.toLowerCase(),
+                values: val,
+            }
+        });
+
+        return {
+            id,
+            values: transformedObj,
+        };
+    });
+
+    mappedData?.map(({ id, values }) => {
+        values?.map(async ({ key, values: dataValues }) => {
+            console.log(`id: ${id}, key: ${key}, value: ${dataValues}`)
+            // const { error } = await supabase
+            // .from('tbl_user_databases')
+            // .insert({ id, key, value: dataValues  })
+        })
+    })
+
+    console.log('mappedData:', JSON.stringify(mappedData))
+}
 
 export async function getDatabaseDataByIdToSuggestions({ databaseId, pageLimit = DEFAULT_PAGES_LIMIT }: { databaseId: string, isToGetSuggestions: boolean, pageLimit: number }): Promise<Array<NotionDatabasePropertiesType> | any> {
     const headers = await getHeaders();

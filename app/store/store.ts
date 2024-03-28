@@ -1,5 +1,5 @@
-import { NotionDatabasePropertiesType, getDatabaseDataById, getDatabases } from "@actions/notion-actions";
-import { MistralSuggestionsType, getAIChatResponse, getAISuggestions, getSummarizedData } from "@actions/mistral-actions";
+import { NotionDatabasePropertiesType, getDatabaseDataById, getDatabases, getSummarizedData } from "@actions/notion-actions";
+import { MistralSuggestionsType, getAIChatResponse, getAISuggestions } from "@actions/mistral-actions";
 import { create } from "zustand";
 
 type InitialStateType = {

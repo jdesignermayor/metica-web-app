@@ -12,38 +12,6 @@ export type MistralSuggestionsType = {
     suggestion: string;
 }
 
-type FieldMultiSelectType = {
-    id: string,
-    name: string,
-    color: string,
-}
-
-type FieldNumberType = {
-    id: string;
-    type: string;
-    number: number;
-}
-
-type FieldNameTitleType = {
-    type: string;
-    text: Array<FieldNameTextType | []>;
-    annotations?: any;
-    plain_text: string;
-    href?: null;
-}
-
-type FieldNameTextType = {
-    content: string;
-    link?: null | string;
-}
-
-enum FieldsTypeList {
-    LAST_EDITED_BY = 'last_edited_by',
-    MULTI_SELECT = 'multi_select',
-    NUMBER = 'number',
-    TITLE = 'title',
-}
-
 const DEFAULT_HEADERS = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${process.env.NEXT_MISTRAL_API_KEY}`,
@@ -101,48 +69,6 @@ let modelHistory = [{
     LineChart/BarChart/ScatterChart should return(mandatory): data[{name(axisX): val(do not nested values),...comparison(axisY one or multiple),}] 
     PieChart should return(mandatory): data[{name: val(do not nested values),value}]`
 }];
-
-export async function getSummarizedData({ databaseId }: { databaseId: string }) {
-    const databaseData = await getDatabaseDataById({ databaseId, pageLimit: 15 });
-
-    const mappedData = databaseData?.map(({ id, properties }: any) => {
-        const transformedObj = Object.keys(properties).map(key => {
-            let val = '' as any;
-            switch (properties[key].type) {
-                case FieldsTypeList.LAST_EDITED_BY:
-                    const lastEditedByValue = properties[key][FieldsTypeList.LAST_EDITED_BY]?.name;
-                    val = lastEditedByValue;
-                    break;
-
-                case FieldsTypeList.MULTI_SELECT:
-                    const multiSelectValues = properties[key][FieldsTypeList.MULTI_SELECT]?.map(({ name }: FieldMultiSelectType) => ({ name })) || [];
-                    val = multiSelectValues;
-                    break;
-
-                case FieldsTypeList.NUMBER:
-                    const numberValue = properties[key] as FieldNumberType;
-                    val = numberValue.number;
-                    break;
-
-                case FieldsTypeList.TITLE:
-                    const nameValue = properties[key]?.title[0] as FieldNameTitleType;
-                    val = nameValue.plain_text;
-                    break;
-            }
-            return {
-                key: key.toLowerCase(),
-                values: val,
-            }
-        });
-
-        return {
-            id,
-            values: transformedObj,
-        };
-    });
-
-    console.log('mappedData:', JSON.stringify(mappedData))
-}
 
 export async function getAIChatResponse({ userPrompt, databaseId }: { userPrompt: string, databaseId: string }) {
     const databaseData = await getDatabaseDataById({ databaseId, pageLimit: 15 });
